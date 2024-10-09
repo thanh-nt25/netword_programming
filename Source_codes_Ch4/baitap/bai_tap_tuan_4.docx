@@ -1,0 +1,16 @@
+﻿Bài tập Lập trình mạng tuần 4
+Họ và tên: Nguyễn Tuấn Thành
+MSSV: 20210800
+Bài 1:
+Sau khi chạy chương trình, kết quả hiển thị tiến trình cha đã sleeping trong 30 giây và kết quả hiển thị:
+Kiểm tra các tiến trình:
+Xuất hiện tiến trình zombie với <defunct>
+Từ khóa <defunct> trong ngữ cảnh của tiến trình zombie chỉ một tiến trình đã hoàn thành nhưng vẫn còn tồn tại trong danh sách tiến trình của hệ thống. Các tiến trình zombie không còn thực hiện công việc, nhưng vẫn giữ lại một số thông tin như mã trạng thái và PID (Process ID).
+Sau khi thêm wait(NULL), kiểm tra các tiến trình ta thấy rằng tiến trình zombie đã biến mất:
+Giải thích: Khi thêm wait(NULL) vào tiến trình cha (parent process), điều này giúp tiến trình cha thu hồi thông tin của tiến trình con (child process) đã hoàn tất, và từ đó giải phóng tài nguyên mà tiến trình con đã sử dụng. Cụ thể:
+- Khi tiến trình cha gọi wait(), nó sẽ block và chờ cho đến khi một trong các tiến trình con của nó kết thúc.
+- Khi tiến trình con hoàn thành, nó sẽ gửi một signal đến tiến trình cha. Nếu tiến trình cha đang gọi wait(), nó sẽ nhận tín hiệu này và thu hồi thông tin về tiến trình con, bao gồm mã trạng thái và PID.
+- Sau khi thu hồi thông tin, kernel sẽ giải phóng tài nguyên mà tiến trình con đã sử dụng, bao gồm việc xóa tiến trình con khỏi danh sách tiến trình của hệ thống. Điều này sẽ ngăn tiến trình con chuyển thành trạng thái zombie.
+Bài 2:
+Chương trình khi client kết nối đến server, hiển thị các câu hỏi trắc nghiệm:
+

@@ -1,0 +1,22 @@
+﻿Thực hành lập trình mạng
+Bài tập Chương 3
+Họ và tên: Nguyễn Tuấn Thành
+MSSV: 20210800
+Bài 1: Viết một chương trình khởi tạo cấu trúc sockaddr_in với một số cổng và địa chỉ IP (ví dụ: "192.168.1.1").
+Kết quả khi khởi chạy chương trình:
+Chương trình khởi tạo được cấu trúc socket với địa chỉ IP 192.168.1.1 tại cổng 8080
+Bài 2: Viết một chương trình thực hiện:
+- Nhập địa chỉ IP dưới dạng chuỗi từ người dùng.
+- Sử dụng inet_pton để chuyển địa chỉ sang dạng nhị phân.
+- Chuyển địa chỉ nhị phân về dạng văn bản dễ đọc bằng inet_ntop và in ra.
+Chương trình yêu cầu người dùng nhập 2 dạng địa chỉ IPv4 và Ipv6, sau đó sử dụng các hàm để chuyển đổi sang dạng nhị phân, chuyển đổi về dạng văn bản và in ra.
+
+Bài 3:
+Tạo một chương trình client-server sử dụng tất cả các hàm đã học ở trên:
+- Client đọc địa chỉ IP của server từ người dùng, chuyển đổi bằng inet_pton, và gửi thông điệp.
+- Server nhận thông điệp, chuyển đổi địa chỉ của client bằng sock_ntop, và gửi phản hồi.
+Khởi chạy server trước tiên:
+Khi đó server sẽ lắng nghe thông điệp tại cổng 8080
+Tiếp theo, khởi chạy client và gửi thông điệp cho server:
+
+Lúc này server đã nhận được thông điệp “Hello from client” từ phía client, và phản hồi lại thông điệp “Message received”
