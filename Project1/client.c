@@ -1402,10 +1402,30 @@ void guess_row(WINDOW* main_window, WINDOW* bottom_bar) {
             wrefresh(bottom_bar);
             getch();
         }
+        wclear(bottom_bar);
+        mvwprintw(bottom_bar, 1, 0, "Press 1 for next row, 2 for secret guess: ");
+        wrefresh(bottom_bar);
+        int action = wgetch(bottom_bar) - '0';
+
+        if (action == 1) {
+            // Tiếp tục đoán hàng
+            continue;
+        } else if (action == 2) {
+            // Chuyển sang đoán bí mật
+            guess_secret(main_window, bottom_bar);
+            break;
+        } else {
+            // Nếu không phải lựa chọn hợp lệ, tiếp tục vòng lặp
+            mvwprintw(bottom_bar, 1, 0, "Invalid option. Please choose again. (Press any key...)");
+            wrefresh(bottom_bar);
+            getch();
+        }
     }
 
-    guess_secret(main_window, bottom_bar);
+    // guess_secret(main_window, bottom_bar);
+    
 }
+
 
 void guess_secret(WINDOW* main_window, WINDOW* bottom_bar) {
     char input[32];
