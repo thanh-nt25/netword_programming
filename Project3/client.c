@@ -240,9 +240,10 @@ void start() {
 }
 
 void print_welcome_window(WINDOW* window) {
-    wclear(window);
-    mvwprintw(window, 7, 34, "O Chu Bi Mat");
-    wrefresh(window);
+    
+    wclear(window); // xoa tat ca noi dung
+    mvwprintw(window, 7, 34, "O Chu Bi Mat"); // in o dong, cot
+    wrefresh(window); // refresh de hien thi noi dung dc in
 }
 
 void print_bottom_menu(WINDOW* window, char* menus[], int cursor, int button_num) {
@@ -252,9 +253,10 @@ void print_bottom_menu(WINDOW* window, char* menus[], int cursor, int button_num
     if (button_num == 1) {
         x = 39;
     }
-
+    // x lui vao 10, thi con 90-10 = 80 cho cac muc con lai trong menu
     for (int i = 0; i < button_num; ++i) {
         if (cursor == i) {
+            // neu con tro o muc nao thi se co mau nguoc
             wattron(window, A_REVERSE);
             mvwprintw(window, y, x + (80 / (button_num)) * i, "%s", menus[i]);
             wattroff(window, A_REVERSE);
@@ -385,6 +387,8 @@ int login(WINDOW* main_window, WINDOW* bottom_bar) {
                                 is_logged_in = 1;
                                 free(user);
                                 return 1;
+                                //return 1 neu dang nhap thanh cong
+                                //navigation den main screen
                             } else {
                                 wclear(bottom_bar);
                                 memset(str, 0x00, 255);
@@ -819,17 +823,22 @@ void print_users(WINDOW* window, user_t* users, int num_users, int cursor, int p
     wrefresh(window);
 }
 
+// xu ly ca con tro challenge va con tro num_users
+// return 1 neu 0K, 0 neu error
 int request_users(user_t* users, int* num_users, char msg[], message_t* challenge) {
     message_t request;
     request.type = MSG_GET_USERS;
     strcpy(request.user.username, current_user.username);
+    // fd cua socket muon gui toi, con tro tro toi du lieu, size
     send(server_fd, &request, sizeof(request), 0);
 
     message_t response;
+    // cho nhan phan hoi tu server
     do {
         recv(server_fd, &response, sizeof(response), 0);
 
         if (response.type == MSG_CHALLENGE) {
+            // nhan nguoi thach dau cuoi cung
             *challenge = response;
         }
     } while (response.type != MSG_OK && response.type != MSG_ERROR);
@@ -850,6 +859,8 @@ int request_users(user_t* users, int* num_users, char msg[], message_t* challeng
     return result;
 }
 
+// gui di tu 1 user
+// 1 neu oke, 0 nguoc lai (check xem 1 co phai la oke tu nguoi duoc gui challenge)
 int request_challenge(user_t* user, char msg[]) {
     message_t request;
     request.type = MSG_CHALLENGE;
@@ -869,6 +880,9 @@ int request_challenge(user_t* user, char msg[]) {
     }
 }
 
+// cho man hinh cho` sau khi gui loi moi thach dau
+// cho responese tu nguoi kia tu recv - server_fd
+// accept: - response chua thong tin game => run_game
 void challenge_user(WINDOW* main_window, WINDOW* bottom_bar, user_t* user) {
     print_challenge_window(main_window, user);
     wclear(bottom_bar);
@@ -890,6 +904,7 @@ void challenge_user(WINDOW* main_window, WINDOW* bottom_bar, user_t* user) {
     }
 }
 
+// man hinh cua nguoi gui loi thach dau, trong khi cho nguoi kia response
 void print_challenge_window(WINDOW* window, user_t* user) {
     wclear(window);
     mvwprintw(window, 6, 36, "CHALLENGE");
@@ -1437,9 +1452,28 @@ void guess_row(WINDOW* main_window, WINDOW* bottom_bar) {
             wrefresh(bottom_bar);
             getch();
         }
+        wclear(bottom_bar);
+        mvwprintw(bottom_bar, 1, 0, "Press 1 for next row, 2 for secret guess: ");
+        wrefresh(bottom_bar);
+        int action = wgetch(bottom_bar) - '0';
+
+        if (action == 1) {
+            // Tiếp tục đoán hàng
+            continue;
+        } else if (action == 2) {
+            // Chuyển sang đoán bí mật
+            guess_secret(main_window, bottom_bar);
+            break;
+        } else {
+            // Nếu không phải lựa chọn hợp lệ, tiếp tục vòng lặp
+            mvwprintw(bottom_bar, 1, 0, "Invalid option. Please choose again. (Press any key...)");
+            wrefresh(bottom_bar);
+            getch();
+        }
     }
 
-    guess_secret(main_window, bottom_bar);
+    // guess_secret(main_window, bottom_bar);
+    
 }
 
 void guess_secret(WINDOW* main_window, WINDOW* bottom_bar) {

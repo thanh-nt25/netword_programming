@@ -110,7 +110,7 @@ typedef struct guess {
 } guess_t;
 
 typedef struct crosswords {
-    char crossword[MAX_ROW][32];
+    char crossword[MAX_ROW][32]; // 10 *32
     int start_cols[MAX_ROW];
     int num_rows;
     char suggestions[MAX_ROW][255];
