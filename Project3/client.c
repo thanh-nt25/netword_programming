@@ -1,24 +1,3 @@
-"""
-request user
-request challenge
-
-challenfge user
-print_challenge_window
-
-response_challenge
-print_response_challenge_window
-request_response_challenge
-
-run_game
-print_crossword
-print_player
-
-guess_row
-guess_secret
-request_guess
-request_sur
-"""
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,11 +64,10 @@ int request_guess(message_t* request, char msg[]);
 int request_surrender(char msg[]);
 
 int main(int argc, char* argv[]) {
-    signal(SIGINT, disconnect); // tin hieu ngat, ctrl + C
+    signal(SIGINT, disconnect);
 
-    //  localhost, mang cua chinh client dang chay
-    const char* ip = DEFAULT_IP; //"127.0.0.1"
-    long port = DEFAULT_PORT; //2209
+    const char* ip = DEFAULT_IP;
+    long port = DEFAULT_PORT;
 
     if (argc > 2) {
         ip = argv[1];
@@ -139,17 +117,14 @@ void start() {
     current_user = EMPTY_USER;
     current_game.created = -1;
 
-    // tao ra 2 cua so
     WINDOW* main_window;
     WINDOW* bottom_bar;
 
     char* menus[] = {"LOGIN", "REGISTER", "EXIT"};
     int main_cursor = 0, menu_num = 3, is_not_exit = 1, login_res = 0;
     int ch;
-    // khoi tao ncurses
     initscr();
 
-    // check mau
     if (has_colors() == FALSE) {
         puts("Terminal does not support colors!");
         endwin();
@@ -164,38 +139,28 @@ void start() {
     }
 
     refresh();
-    // 23 dong, 90 cot
     main_window = newwin(23, 90, 0, 0);
-    // 3 dong, 90 cot
-    // lech duoi 23 dong
     bottom_bar = newwin(3, 90, 23, 0);
     p_bottom_bar = bottom_bar;
 
-    // thiet lap mau nen
     wbkgd(main_window, COLOR_PAIR(COLOR_PAIR_DEFAULT));
     wbkgd(bottom_bar, COLOR_PAIR(COLOR_PAIR_BOTTOM_BAR));
 
-    // dang ky xu ly ctrl C va kill
     signal(SIGINT, disconnect);
     signal(SIGKILL, disconnect);
 
-    // tat bo dem
     noecho();
     cbreak();
-    // tat con tro chuot
     curs_set(0);
-    // nhan di chuuyen bang phim tren ban phim
     keypad(stdscr, TRUE);
 
     while (is_not_exit != 0) {
         print_welcome_window(main_window);
-        // ve bottom menu len bottom bar
         print_bottom_menu(bottom_bar, menus, main_cursor, menu_num);
 
         ch = getch();
 
         switch (ch) {
-            // KEY_LEFT va KEY_LEFT la ham bat su kien sang phai va sang phai cua ncur
             case KEY_LEFT:
                 if (main_cursor != 0) {
                     main_cursor--;
@@ -240,10 +205,9 @@ void start() {
 }
 
 void print_welcome_window(WINDOW* window) {
-    
-    wclear(window); // xoa tat ca noi dung
-    mvwprintw(window, 7, 34, "O Chu Bi Mat"); // in o dong, cot
-    wrefresh(window); // refresh de hien thi noi dung dc in
+    wclear(window);
+    mvwprintw(window, 7, 34, "O Chu Bi Mat");
+    wrefresh(window);
 }
 
 void print_bottom_menu(WINDOW* window, char* menus[], int cursor, int button_num) {
@@ -253,10 +217,9 @@ void print_bottom_menu(WINDOW* window, char* menus[], int cursor, int button_num
     if (button_num == 1) {
         x = 39;
     }
-    // x lui vao 10, thi con 90-10 = 80 cho cac muc con lai trong menu
+
     for (int i = 0; i < button_num; ++i) {
         if (cursor == i) {
-            // neu con tro o muc nao thi se co mau nguoc
             wattron(window, A_REVERSE);
             mvwprintw(window, y, x + (80 / (button_num)) * i, "%s", menus[i]);
             wattroff(window, A_REVERSE);
@@ -387,8 +350,6 @@ int login(WINDOW* main_window, WINDOW* bottom_bar) {
                                 is_logged_in = 1;
                                 free(user);
                                 return 1;
-                                //return 1 neu dang nhap thanh cong
-                                //navigation den main screen
                             } else {
                                 wclear(bottom_bar);
                                 memset(str, 0x00, 255);
@@ -823,22 +784,17 @@ void print_users(WINDOW* window, user_t* users, int num_users, int cursor, int p
     wrefresh(window);
 }
 
-// xu ly ca con tro challenge va con tro num_users
-// return 1 neu 0K, 0 neu error
 int request_users(user_t* users, int* num_users, char msg[], message_t* challenge) {
     message_t request;
     request.type = MSG_GET_USERS;
     strcpy(request.user.username, current_user.username);
-    // fd cua socket muon gui toi, con tro tro toi du lieu, size
     send(server_fd, &request, sizeof(request), 0);
 
     message_t response;
-    // cho nhan phan hoi tu server
     do {
         recv(server_fd, &response, sizeof(response), 0);
 
         if (response.type == MSG_CHALLENGE) {
-            // nhan nguoi thach dau cuoi cung
             *challenge = response;
         }
     } while (response.type != MSG_OK && response.type != MSG_ERROR);
@@ -859,8 +815,6 @@ int request_users(user_t* users, int* num_users, char msg[], message_t* challeng
     return result;
 }
 
-// gui di tu 1 user
-// 1 neu oke, 0 nguoc lai (check xem 1 co phai la oke tu nguoi duoc gui challenge)
 int request_challenge(user_t* user, char msg[]) {
     message_t request;
     request.type = MSG_CHALLENGE;
@@ -880,9 +834,6 @@ int request_challenge(user_t* user, char msg[]) {
     }
 }
 
-// cho man hinh cho` sau khi gui loi moi thach dau
-// cho responese tu nguoi kia tu recv - server_fd
-// accept: - response chua thong tin game => run_game
 void challenge_user(WINDOW* main_window, WINDOW* bottom_bar, user_t* user) {
     print_challenge_window(main_window, user);
     wclear(bottom_bar);
@@ -904,7 +855,6 @@ void challenge_user(WINDOW* main_window, WINDOW* bottom_bar, user_t* user) {
     }
 }
 
-// man hinh cua nguoi gui loi thach dau, trong khi cho nguoi kia response
 void print_challenge_window(WINDOW* window, user_t* user) {
     wclear(window);
     mvwprintw(window, 6, 36, "CHALLENGE");
@@ -1313,26 +1263,26 @@ void guess_row(WINDOW* main_window, WINDOW* bottom_bar) {
     char msg[255];
     char str[255];
     int res;
-
+ 
     wclear(main_window);
     wclear(bottom_bar);
     wrefresh(main_window);
     wrefresh(bottom_bar);
     noecho();
-
+ 
     keypad(stdscr, TRUE);
-
+ 
     print_crossword(main_window, &current_game.crosswords);
     print_players(main_window);
-
+ 
     int is_not_done = 1;
     while (is_not_done) {
         int row = -1;
-
+ 
         memset(input, 0x00, 32);
         int i = 0;
         int is_enter = 0;
-
+ 
         wclear(bottom_bar);
         mvwprintw(bottom_bar, 1, 0, "Enter row guess: ");
         wrefresh(bottom_bar);
@@ -1348,12 +1298,12 @@ void guess_row(WINDOW* main_window, WINDOW* bottom_bar) {
                         wechochar(bottom_bar, ' ');
                     }
                     break;
-
+ 
                 case '\n':
                     if (strlen(input) == 0) {
                         break;
                     }
-
+ 
                     row = atoi(input);
                     if (row < 1 || row > current_game.crosswords.num_rows || current_game.crosswords.crossword[row - 1][0] != ' ') {
                         wclear(bottom_bar);
@@ -1365,25 +1315,25 @@ void guess_row(WINDOW* main_window, WINDOW* bottom_bar) {
                         is_enter = 1;
                     }
                     break;
-
+ 
                 default:
                     input[i++] = (char) ch;
                     break;
             }
-
+ 
             wclear(bottom_bar);
             mvwprintw(bottom_bar, 1, 0, "Enter row guess: ");
             wrefresh(bottom_bar);
-
+ 
             wmove(bottom_bar, 1, 20);
             for (int j = 0; j < i; j++) {
                 wechochar(bottom_bar, input[j]);
             }
         }
-
+ 
         mvwprintw(main_window, 21, 0, "%s", current_game.crosswords.suggestions[row - 1]);
         wrefresh(main_window);
-
+ 
         wclear(bottom_bar);
         mvwprintw(bottom_bar, 1, 0, "Enter your guess: ");
         wrefresh(bottom_bar);
@@ -1402,22 +1352,22 @@ void guess_row(WINDOW* main_window, WINDOW* bottom_bar) {
                         wechochar(bottom_bar, ' ');
                     }
                     break;
-
+ 
                 case '\n':
                     is_enter = 1;
                     break;
-
+ 
                 default:
                     input[i++] = (char) ch;
                     break;
             }
-
+ 
             wmove(bottom_bar, 1, 20);
             for (int j = 0; j < i; j++) {
                 wechochar(bottom_bar, input[j]);
             }
         }
-
+ 
         message_t request;
         request.type = MSG_GUESS;
         guess_t guess;
@@ -1426,17 +1376,19 @@ void guess_row(WINDOW* main_window, WINDOW* bottom_bar) {
         strcpy(guess.crossword, input);
         strcpy(request.user.username, current_user.username);
         request.guess = guess;
-
+ 
         res = request_guess(&request, msg);
         if (res) {
             if (res == 1) {
                 is_not_done = 0;
                 wclear(bottom_bar);
+                print_crossword(main_window, &current_game.crosswords);
                 mvwprintw(bottom_bar, 1, 0, ">>> Your guess is correct. (Press any key...)");
                 wrefresh(bottom_bar);
                 getch();
             } else {
                 wclear(bottom_bar);
+                print_crossword(main_window, &current_game.crosswords);
                 mvwprintw(bottom_bar, 1, 0, ">>> Your guess is incorrect. (Press any key...)");
                 wrefresh(bottom_bar);
                 getch();
@@ -1456,7 +1408,7 @@ void guess_row(WINDOW* main_window, WINDOW* bottom_bar) {
         mvwprintw(bottom_bar, 1, 0, "Press 1 for next row, 2 for secret guess: ");
         wrefresh(bottom_bar);
         int action = wgetch(bottom_bar) - '0';
-
+ 
         if (action == 1) {
             // Tiếp tục đoán hàng
             continue;
@@ -1471,9 +1423,9 @@ void guess_row(WINDOW* main_window, WINDOW* bottom_bar) {
             getch();
         }
     }
-
+ 
     // guess_secret(main_window, bottom_bar);
-    
+   
 }
 
 void guess_secret(WINDOW* main_window, WINDOW* bottom_bar) {
@@ -1613,3 +1565,4 @@ int request_surrender(char msg[]) {
         return 0;
     }
 }
+
